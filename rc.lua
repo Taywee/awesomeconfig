@@ -358,9 +358,12 @@ local globalkeys = awful.util.table.join(
   end),
   -- Menubar
   awful.key({ modkey }, "p", function() menubar.show() end),
+
+  -- Misc user mappings
   awful.key({ }, "Print", function ()
     awful.util.spawn(table.concat({'/usr/bin/scrot', '-q0', os.getenv('HOME') .. '/Pictures/screencaps/scrot-%FT%T.png'}, ' '))
   end)
+  awful.key({ modkey,           }, "F1",  function() km:switch() end  ),
 )
 
 local clientkeys = awful.util.table.join(
