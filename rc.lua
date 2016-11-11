@@ -271,9 +271,9 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
-    right_layout:add(km.widget)
     right_layout:add(bt.widget)
     right_layout:add(ots)
+    right_layout:add(km.widget)
     right_layout:add(cpugraph)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
@@ -362,8 +362,8 @@ local globalkeys = awful.util.table.join(
   -- Misc user mappings
   awful.key({ }, "Print", function ()
     awful.util.spawn(table.concat({'/usr/bin/scrot', '-q0', os.getenv('HOME') .. '/Pictures/screencaps/scrot-%FT%T.png'}, ' '))
-  end)
-  awful.key({ modkey,           }, "F1",  function() km:switch() end  ),
+  end),
+  awful.key({ modkey,           }, "F1",  function() km:switch() end  )
 )
 
 local clientkeys = awful.util.table.join(
