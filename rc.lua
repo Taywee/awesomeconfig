@@ -241,6 +241,8 @@ local mytasklist = {
     end
   ))}
 
+local sep = wibox.widget.textbox(' ')
+
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
     mypromptbox[s] = awful.widget.prompt()
@@ -270,10 +272,15 @@ for s = 1, screen.count() do
 
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
-    if s == 1 then right_layout:add(wibox.widget.systray()) end
+    right_layout:add(sep)
+    if s == 1 then
+      right_layout:add(wibox.widget.systray())
+    end
     right_layout:add(bt.widget)
     right_layout:add(ots)
+    right_layout:add(sep)
     right_layout:add(km.widget)
+    right_layout:add(sep)
     right_layout:add(cpugraph)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
