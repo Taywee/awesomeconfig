@@ -4,11 +4,11 @@ local awful = require 'awful'
 local keymap = {}
 local metatable = {__index = keymap}
 
-function keymap.new(...)
+function keymap.new(mappings)
   local self = {
     cmd = 'setxkbmap',
     widget = wibox.widget.textbox(),
-    mappings = {...},
+    mappings = mappings,
     active = 1,
   }
   setmetatable(self, metatable)

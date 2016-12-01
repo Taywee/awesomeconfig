@@ -137,9 +137,9 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 
 -- {{{ Wibox
 -- Create a textclock widget
-local mytextclock = awful.widget.textclock()
+local textclock = awful.widget.textclock(" %a %b %d, %H:%M ", 10)
 cal.register(
-  mytextclock,
+  textclock,
   table.concat{'<span font_weight="bold" bgcolor="', beautiful.fg_focus, '" fgcolor="', beautiful.bg_focus, '">%s</span>'}
 )
 
@@ -150,11 +150,10 @@ local bt = bluetooth.new(
   table.concat({themedir, theme, 'bt-error.png'}, '/')
 )
 
-local km = keymap.new(
+local km = keymap.new{
   {text = 'tvo', layout = 'us tvorak'},
   {text = 'us', layout = 'us'},
-  {text = 'dv-l', layout = 'us dvorak-l'}
-)
+}
 
 local ots = wibox.widget.imagebox()
 ots:set_image(table.concat({themedir, theme, 'padlock.png'}, '/'))
@@ -282,7 +281,7 @@ for s = 1, screen.count() do
     right_layout:add(km.widget)
     right_layout:add(sep)
     right_layout:add(cpugraph)
-    right_layout:add(mytextclock)
+    right_layout:add(textclock)
     right_layout:add(mylayoutbox[s])
 
     -- Now bring it all together (with the tasklist in the middle)
