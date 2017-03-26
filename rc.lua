@@ -9,7 +9,14 @@ local beautiful = require("beautiful")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
+local vicious = require 'vicious'
 local hotkeys_popup = require("awful.hotkeys_popup").widget
+local table = require 'table'
+local bluetooth = require 'bluetooth'
+local keymap = require 'keymap'
+local cal = require 'cal'
+
+local awesome = _G.awesome
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -49,6 +56,8 @@ local function table_range(from, to, step)
   return tab
 end
 
+-- Get the theme directory without a trailing slash
+local themedir = awful.util.get_themes_dir():match('(.-)/*$')
 local theme = 'gentoo'
 local wallpaper = nil
 
@@ -57,7 +66,7 @@ local tagsymbols = {12, 13, 14, 17, 18, 19}
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(table.concat({awful.util.get_themes_dir():match('(.-)/*$'), theme, 'theme.lua'}, '/'))
+beautiful.init(table.concat({themedir, theme, 'theme.lua'}, '/'))
 
 -- This is used later as the default terminal and editor to run.
 local terminal = "urxvt"
@@ -128,12 +137,60 @@ local mylauncher = awful.widget.launcher({
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
--- Keyboard map indicator and switcher
-local mykeyboardlayout = awful.widget.keyboardlayout()
+local km = keymap.new{
+  {text = 'tvo', layout = 'us tvorak'},
+  {text = 'us', layout = 'us'},
+}
+
+local ots = wibox.widget.imagebox()
+ots:set_image(table.concat({themedir, theme, 'padlock.png'}, '/'))
+ots:buttons(awful.util.table.join(awful.button({ }, 1, function()
+  awful.spawn.easy_async('onenightstand', function(stdout)
+    naughty.notify{
+      title = 'OTP passwords:',
+      text = trim(stdout),
+      timeout = 10
+    }
+  end)
+end)))
 
 -- {{{ Wibar
 -- Create a textclock widget
 local mytextclock = wibox.widget.textclock()
+cal.register(
+  mytextclock,
+  table.concat{'<span font_weight="bold" bgcolor="', beautiful.fg_focus, '" fgcolor="', beautiful.bg_focus, '">%s</span>'}
+)
+
+local bt = bluetooth.new(
+  table.concat({themedir, theme, 'bt-on.png'}, '/'),
+  table.concat({themedir, theme, 'bt-off.png'}, '/'),
+  table.concat({themedir, theme, 'bt-loading.png'}, '/'),
+  table.concat({themedir, theme, 'bt-error.png'}, '/')
+)
+
+local cpugraph = awful.widget.graph()
+cpugraph:set_width(50)
+cpugraph:set_background_color('#000000')
+cpugraph:set_color(beautiful.fg_focus)
+cputt = awful.tooltip({objects = {cpugraph}})
+vicious.register(cpugraph, vicious.widgets.cpu, function(widget, args)
+  local tooltip = {}
+  setmetatable(tooltip, {__index = table})
+
+  for i, cpu in ipairs(args) do
+    if i > 1 then
+      tooltip:insert(table.concat({'CPU ', i - 1, ': ', cpu, '%'}, ''))
+    end
+  end
+  cputt:set_text(tooltip:concat('\n'))
+
+  return args[1]
+end, 1)
+
+cpugraph:buttons(awful.util.table.join(
+  awful.button({ }, 1, function() awful.util.spawn{'urxvt', '-e', 'htop'} end)
+))
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = awful.util.table.join(
@@ -234,8 +291,11 @@ awful.screen.connect_for_each_screen(function(s)
     {
       -- Right widgets
       layout = wibox.layout.fixed.horizontal,
-      mykeyboardlayout,
       wibox.widget.systray(),
+      km.widget,
+      bt.widget,
+      ots,
+      cpugraph,
       mytextclock,
       s.mylayoutbox,
     },
@@ -359,11 +419,11 @@ awful.key({ modkey },            "r",     function () awful.util.spawn{
   {description = "show the menubar", group = "launcher"}),
   -- Misc user mappings
   awful.key({ }, "Print", function ()
-    local filename = os.date(os.getenv('HOME') .. '/Pictures/screencaps/scrot-%FT%T.png')
+    local filename = table.concat({os.getenv('HOME'), 'Pictures', 'screencaps', os.date('%FT%T.png')}, '/')
     awful.util.spawn{'/usr/bin/maim', '-s', filename}
   end, {description = 'Print screen with selection bar', group = 'misc'}),
   awful.key({ "Shift" }, "Print", function ()
-    local filename = os.date(os.getenv('HOME') .. '/Pictures/screencaps/scrot-%FT%T.png')
+    local filename = table.concat({os.getenv('HOME'), 'Pictures', 'screencaps', os.date('%FT%T.png')}, '/')
     awful.util.spawn{'/usr/bin/maim', filename}
   end, {description = 'Print entire screen', group = 'misc'})
 )

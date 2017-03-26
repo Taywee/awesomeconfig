@@ -1,6 +1,6 @@
 local ldbus = require 'ldbus'
 local wibox = require "wibox"
-local timer = require "timer"
+local timer = require "gears.timer"
 local awful = require 'awful'
 
 local bluetooth = {}
