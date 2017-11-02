@@ -14,7 +14,6 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 local table = require 'table'
 local bluetooth = require 'bluetooth'
 local keymap = require 'keymap'
-local cal = require 'cal'
 
 local awesome = _G.awesome
 
@@ -69,7 +68,7 @@ local tagsymbols = {12, 13, 14, 17, 18, 19}
 beautiful.init(table.concat({themedir, theme, 'theme.lua'}, '/'))
 
 -- This is used later as the default terminal and editor to run.
-local terminal = "urxvt"
+local terminal = "gnome-terminal"
 local editor = os.getenv("EDITOR") or "vim"
 local editor_cmd = terminal .. " -e " .. editor
 
@@ -115,7 +114,7 @@ end
 -- Create a launcher widget and a main menu
 local myawesomemenu = {
   { "hotkeys", function() return false, hotkeys_popup.show_help end},
-  { "manual", terminal .. " -e man awesome" },
+  { "manual", terminal .. " -e 'man awesome'" },
   { "edit config", editor_cmd .. " " .. awesome.conffile },
   { "restart", awesome.restart },
   { "quit", function() awesome.quit() end}
@@ -154,13 +153,12 @@ ots:buttons(awful.util.table.join(awful.button({ }, 1, function()
   end)
 end)))
 
+local month_calendar = awful.widget.calendar_popup.month()
+
 -- {{{ Wibar
 -- Create a textclock widget
 local mytextclock = wibox.widget.textclock()
-cal.register(
-  mytextclock,
-  table.concat{'<span font_weight="bold" bgcolor="', beautiful.fg_focus, '" fgcolor="', beautiful.bg_focus, '">%s</span>'}
-)
+month_calendar:attach(mytextclock)
 
 local bt = bluetooth.new(
   table.concat({themedir, theme, 'bt-on.png'}, '/'),
@@ -189,7 +187,7 @@ vicious.register(cpugraph, vicious.widgets.cpu, function(widget, args)
 end, 1)
 
 cpugraph:buttons(awful.util.table.join(
-  awful.button({ }, 1, function() awful.util.spawn{'urxvt', '-e', 'htop'} end)
+  awful.button({ }, 1, function() awful.util.spawn{terminal, '-e', 'htop'} end)
 ))
 
 -- Create a wibox for each screen and add it
@@ -207,7 +205,9 @@ local taglist_buttons = awful.util.table.join(
     end
   end),
   awful.button({ }, 4, function(t) awful.tag.viewnext(t.screen) end),
-  awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
+  awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end),
+  awful.button({ }, 6, function(t) awful.tag.viewprev(t.screen) end),
+  awful.button({ }, 7, function(t) awful.tag.viewnext(t.screen) end)
 )
 
 local tasklist_buttons = awful.util.table.join(
