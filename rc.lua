@@ -68,7 +68,7 @@ local tagsymbols = {12, 13, 14, 17, 18, 19}
 beautiful.init(table.concat({themedir, theme, 'theme.lua'}, '/'))
 
 -- This is used later as the default terminal and editor to run.
-local terminal = "gnome-terminal"
+local terminal = "sakura"
 local editor = os.getenv("EDITOR") or "vim"
 local editor_cmd = terminal .. " -e " .. editor
 
