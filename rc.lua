@@ -16,6 +16,7 @@ local bluetooth = require 'bluetooth'
 local keymap = require 'keymap'
 
 local awesome = _G.awesome
+local ipairs = _G.ipairs
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -77,7 +78,7 @@ local editor_cmd = terminal .. " -e " .. editor
 -- If you do not like this or do not have such a key,
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
-modkey = "Mod4"
+local modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -171,7 +172,7 @@ local cpugraph = awful.widget.graph()
 cpugraph:set_width(50)
 cpugraph:set_background_color('#000000')
 cpugraph:set_color(beautiful.fg_focus)
-cputt = awful.tooltip({objects = {cpugraph}})
+local cputt = awful.tooltip({objects = {cpugraph}})
 vicious.register(cpugraph, vicious.widgets.cpu, function(widget, args)
   local tooltip = {}
   setmetatable(tooltip, {__index = table})
@@ -312,7 +313,7 @@ awful.button({ }, 5, awful.tag.viewprev)
 -- }}}
 
 -- {{{ Key bindings
-globalkeys = awful.util.table.join(
+local globalkeys = awful.util.table.join(
 awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
 {description="show help", group="awesome"}),
 awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
@@ -397,7 +398,7 @@ end,
 awful.key({ modkey },            "r",     function () awful.util.spawn{
   "/usr/bin/dmenu_run", "-f", "-i",
   "-p", 'Run:',
-  "-fn", 'sans-24',
+  "-fn", 'sans-26',
   "-nb", beautiful.bg_normal,
   "-nf", beautiful.fg_normal,
   "-sb", beautiful.bg_focus,
@@ -428,7 +429,7 @@ awful.key({ modkey },            "r",     function () awful.util.spawn{
   end, {description = 'Print entire screen', group = 'misc'})
 )
 
-clientkeys = awful.util.table.join(
+local clientkeys = awful.util.table.join(
 awful.key({ modkey,           }, "f",
 function (c)
   c.fullscreen = not c.fullscreen
@@ -511,7 +512,7 @@ for i, symbol in ipairs(tagsymbols) do
   )
 end
 
-clientbuttons = awful.util.table.join(
+local clientbuttons = awful.util.table.join(
 awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
 awful.button({ modkey }, 1, awful.mouse.client.move),
 awful.button({ modkey }, 3, awful.mouse.client.resize))
