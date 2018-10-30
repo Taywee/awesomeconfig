@@ -1,7 +1,8 @@
-local ldbus = require 'ldbus'
+require 'luarocks.loader'
 local wibox = require "wibox"
 local timer = require "gears.timer"
 local awful = require 'awful'
+local ldbus = require 'ldbus'
 
 local bluetooth = {}
 function bluetooth.check()

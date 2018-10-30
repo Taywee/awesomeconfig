@@ -10,10 +10,11 @@ local beautiful = require("beautiful")
 local naughty = require("naughty")
 local menubar = require("menubar")
 local vicious = require 'vicious'
+--local bluetooth = require 'bluetooth'
 local hotkeys_popup = require("awful.hotkeys_popup").widget
 local table = require 'table'
-local bluetooth = require 'bluetooth'
 local keymap = require 'keymap'
+local config = require 'config'
 
 local awesome = _G.awesome
 local ipairs = _G.ipairs
@@ -22,9 +23,11 @@ local ipairs = _G.ipairs
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
 if awesome.startup_errors then
-  naughty.notify({ preset = naughty.config.presets.critical,
-  title = "Oops, there were errors during startup!",
-  text = awesome.startup_errors })
+  naughty.notify {
+    preset = naughty.config.presets.critical,
+    title = "Oops, there were errors during startup!",
+    text = awesome.startup_errors,
+  }
 end
 
 -- Handle runtime errors after startup
@@ -58,8 +61,13 @@ end
 
 -- Get the theme directory without a trailing slash
 local themedir = awful.util.get_themes_dir():match('(.-)/*$')
-local theme = 'gentoo'
+local theme = config.theme
+local wallpaper_homefile = io.open(table.concat({os.getenv('HOME'), '.wallpaper'}, '/'), 'r')
 local wallpaper = nil
+if wallpaper_homefile ~= nil then
+  wallpaper = wallpaper_homefile:read()
+  wallpaper_homefile:close()
+end
 
 local tagnames = {'{', '[', '(', ')', ']', '}'}
 local tagsymbols = {12, 13, 14, 17, 18, 19}
@@ -69,8 +77,8 @@ local tagsymbols = {12, 13, 14, 17, 18, 19}
 beautiful.init(table.concat({themedir, theme, 'theme.lua'}, '/'))
 
 -- This is used later as the default terminal and editor to run.
-local terminal = "sakura"
-local editor = os.getenv("EDITOR") or "vim"
+local terminal = config.terminal
+local editor = os.getenv("EDITOR") or config.editor
 local editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
@@ -82,12 +90,12 @@ local modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
+  awful.layout.suit.fair,
+  awful.layout.suit.fair.horizontal,
   awful.layout.suit.tile,
   awful.layout.suit.tile.left,
   awful.layout.suit.tile.bottom,
   awful.layout.suit.tile.top,
-  awful.layout.suit.fair,
-  awful.layout.suit.fair.horizontal,
   awful.layout.suit.max,
   awful.layout.suit.max.fullscreen,
   awful.layout.suit.magnifier,
@@ -161,12 +169,12 @@ local month_calendar = awful.widget.calendar_popup.month()
 local mytextclock = wibox.widget.textclock()
 month_calendar:attach(mytextclock)
 
-local bt = bluetooth.new(
+--[[local bt = bluetooth.new(
   table.concat({themedir, theme, 'bt-on.png'}, '/'),
   table.concat({themedir, theme, 'bt-off.png'}, '/'),
   table.concat({themedir, theme, 'bt-loading.png'}, '/'),
   table.concat({themedir, theme, 'bt-error.png'}, '/')
-)
+)]]
 
 local cpugraph = awful.widget.graph()
 cpugraph:set_width(50)
@@ -238,9 +246,12 @@ local tasklist_buttons = awful.util.table.join(
 )
 
 local function set_wallpaper(s)
+  local mywallpaper = wallpaper
+
   -- Wallpaper
   if mywallpaper or beautiful.wallpaper then
     local wallpaper = mywallpaper or beautiful.wallpaper
+    naughty.notify{text=mywallpaper}
     -- If wallpaper is a function, call it with the screen
     if type(wallpaper) == "function" then
       wallpaper = wallpaper(s)
@@ -294,7 +305,7 @@ awful.screen.connect_for_each_screen(function(s)
       layout = wibox.layout.fixed.horizontal,
       wibox.widget.systray(),
       km.widget,
-      bt.widget,
+      --bt.widget,
       ots,
       cpugraph,
       mytextclock,
@@ -398,7 +409,7 @@ end,
 awful.key({ modkey },            "r",     function () awful.util.spawn{
   "/usr/bin/dmenu_run", "-f", "-i",
   "-p", 'Run:',
-  "-fn", 'sans-26',
+  "-fn", 'sans-16',
   "-nb", beautiful.bg_normal,
   "-nf", beautiful.fg_normal,
   "-sb", beautiful.bg_focus,
@@ -420,11 +431,11 @@ awful.key({ modkey },            "r",     function () awful.util.spawn{
   {description = "show the menubar", group = "launcher"}),
   -- Misc user mappings
   awful.key({ }, "Print", function ()
-    local filename = table.concat({os.getenv('HOME'), 'Pictures', 'screencaps', os.date('%FT%T.png')}, '/')
+    local filename = table.concat({os.getenv('HOME'), 'Pictures', 'screencaps', os.date('%FT%H_%M_%S.png')}, '/')
     awful.util.spawn{'/usr/bin/maim', '-s', filename}
   end, {description = 'Print screen with selection bar', group = 'misc'}),
   awful.key({ "Shift" }, "Print", function ()
-    local filename = table.concat({os.getenv('HOME'), 'Pictures', 'screencaps', os.date('%FT%T.png')}, '/')
+    local filename = table.concat({os.getenv('HOME'), 'Pictures', 'screencaps', os.date('%FT%H_%M_%S.png')}, '/')
     awful.util.spawn{'/usr/bin/maim', filename}
   end, {description = 'Print entire screen', group = 'misc'})
 )
